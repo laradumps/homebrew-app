@@ -1,18 +1,21 @@
 #!/bin/bash
 
-REPO="laradumps/app"
-API_URL="https://api.github.com/repos/laradumps/app/releases/latest"
+VERSION=$1
 
-LATEST_RELEASE=$(curl -sL "$API_URL")
-VERSION=$(echo "$LATEST_RELEASE" | jq -r '.tag_name' | sed 's/^v//')
-LATEST_URL="https://github.com/$REPO/releases/download/v$VERSION/latest-mac.yml"
+if [ -z "$VERSION" ]; then
+    echo "Error: Version not specified."
+    echo "Usage: sh update.sh <version>"
+    exit 1
+fi
+
+LATEST_URL="https://github.com/laradumps/app/releases/download/v$VERSION/latest-mac.yml"
 
 echo "Downloading $LATEST_URL..."
 
 curl -sL "$LATEST_URL" -o latest-mac.yaml
 
 ZIP_PATH=$(grep -E "^path:" latest-mac.yaml | awk '{print $2}')
-ZIP_URL="https://github.com/$REPO/releases/download/v$VERSION/$ZIP_PATH"
+ZIP_URL="https://github.com/laradumps/app/releases/download/v$VERSION/$ZIP_PATH"
 
 echo "New version: $VERSION"
 echo "Download URL: $ZIP_URL"
