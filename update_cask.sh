@@ -10,8 +10,6 @@ fi
 
 LATEST_URL="https://github.com/laradumps/app/releases/download/v$VERSION/latest-mac.yml"
 
-echo "Downloading $LATEST_URL..."
-
 curl -sL "$LATEST_URL" -o latest-mac.yaml
 
 ZIP_PATH=$(grep -E "^path:" latest-mac.yaml | awk '{print $2}')
@@ -34,3 +32,7 @@ sed -i '' "s/^  sha256 \".*\"/  sha256 \"$SHA256\"/" "Casks/laradumps.rb"
 rm -f latest-mac.yaml "$ZIP_PATH"
 
 echo "Update complete!"
+
+git add "Casks/laradumps.rb"
+git commit -m "v$VERSION"
+git push
