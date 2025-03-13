@@ -1,6 +1,6 @@
 cask "laradumps" do
-  version "4.0.1"
-  sha256 "b2b65aa064409bca0a59ba384fb4c2cf648c1c94d76fa18be503a8e2708eba78"
+  version "4.0.2"
+  sha256 "a9df5857f9ed449b61fae7102ebfb4f440ddc420c7427e29c56d84769a0a615a"
 
   url "https://github.com/laradumps/app/releases/download/v#{version}/LaraDumps-#{version}-universal-mac.zip",
       verified: "github.com/laradumps/app/"
