@@ -3,10 +3,11 @@
 set -euo pipefail
 
 VERSION=$1
+GH_TOKEN=${2:-}
 
 if [ -z "$VERSION" ]; then
     echo "Error: Version not specified."
-    echo "Usage: sh update.sh <version>"
+    echo "Usage: sh update.sh <version> [gh_token]"
     exit 1
 fi
 
@@ -26,8 +27,13 @@ trap cleanup EXIT
 
 LATEST_URL="https://github.com/laradumps/app/releases/download/v$VERSION/latest-mac.yml"
 
+CURL_AUTH=()
+if [ -n "$GH_TOKEN" ]; then
+    CURL_AUTH=(-H "Authorization: token $GH_TOKEN")
+fi
+
 echo "Fetching release metadata from $LATEST_URL..."
-if ! curl -fsSL "$LATEST_URL" -o "$YAML_TMP"; then
+if ! curl -fsSL "${CURL_AUTH[@]}" "$LATEST_URL" -o "$YAML_TMP"; then
     echo "Error: Failed to download release metadata from $LATEST_URL"
     exit 1
 fi
@@ -46,7 +52,7 @@ echo "New version: $VERSION"
 echo "Download URL: $ZIP_URL"
 echo "Downloading $ZIP_PATH..."
 
-if ! curl -fSL --progress-bar "$ZIP_URL" -o "$ZIP_PATH"; then
+if ! curl -fSL --progress-bar "${CURL_AUTH[@]}" "$ZIP_URL" -o "$ZIP_PATH"; then
     echo "Error: Failed to download $ZIP_URL"
     exit 1
 fi
@@ -67,8 +73,13 @@ fi
 echo "SHA256: $SHA256"
 echo "Updating the Cask file ($CASK_FILE)..."
 
-sed -i '' "s/^  version \".*\"/  version \"$VERSION\"/" "$CASK_FILE"
-sed -i '' "s/^  sha256 \".*\"/  sha256 \"$SHA256\"/" "$CASK_FILE"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/^  version \".*\"/  version \"$VERSION\"/" "$CASK_FILE"
+    sed -i '' "s/^  sha256 \".*\"/  sha256 \"$SHA256\"/" "$CASK_FILE"
+else
+    sed -i "s/^  version \".*\"/  version \"$VERSION\"/" "$CASK_FILE"
+    sed -i "s/^  sha256 \".*\"/  sha256 \"$SHA256\"/" "$CASK_FILE"
+fi
 
 if ! grep -q "version \"$VERSION\"" "$CASK_FILE"; then
     echo "Error: Failed to update version in $CASK_FILE"
