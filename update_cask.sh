@@ -91,8 +91,4 @@ if ! grep -q "sha256 \"$SHA256\"" "$CASK_FILE"; then
     exit 1
 fi
 
-echo "Update complete!"
-
-git add "$CASK_FILE"
-git commit -m "v$VERSION"
-git push
+echo "Update complete! Commit $CASK_FILE (the release workflow commits it signed through the API)."
